@@ -139,9 +139,16 @@ export function createScanner(video, { formats, onRead, onError }) {
           // a failed frame is just a frame with no code
         }
         if (gen !== generation) return;
-        reads.forEach((r) => onRead(r));
-        if (gen !== generation) return;
-        timer = setTimeout(tick, DECODE_INTERVAL_MS);
+        try {
+          for (const r of reads) {
+            onRead(r);
+            if (gen !== generation) return; // the callback stopped the scanner
+          }
+        } catch {
+          // a throwing callback must not kill the decode loop
+        } finally {
+          if (gen === generation) timer = setTimeout(tick, DECODE_INTERVAL_MS);
+        }
       };
       timer = setTimeout(tick, DECODE_INTERVAL_MS);
     } catch (err) {

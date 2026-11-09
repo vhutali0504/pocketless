@@ -105,6 +105,22 @@ describe('createScanner with BarcodeDetector', () => {
     s.stop();
   });
 
+  it('keeps decoding when an onRead callback throws', async () => {
+    setMedia(vi.fn().mockResolvedValue(makeStream()));
+    const { FakeDetector } = makeDetector([{ rawValue: '4006381333931', format: 'ean_13' }]);
+    vi.stubGlobal('BarcodeDetector', FakeDetector);
+    const onRead = vi.fn(() => {
+      throw new Error('callback bug');
+    });
+    const s = createScanner(video, { onRead, onError: vi.fn() });
+    await s.start();
+    await vi.advanceTimersByTimeAsync(100);
+    expect(onRead).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(200);
+    expect(onRead.mock.calls.length).toBeGreaterThanOrEqual(3);
+    s.stop();
+  });
+
   it('restricts the detector to the requested formats', async () => {
     setMedia(vi.fn().mockResolvedValue(makeStream()));
     const { FakeDetector } = makeDetector([]);

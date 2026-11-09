@@ -1,0 +1,103 @@
+/* Shared controls. Hover changes colour, never opacity. */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 10px 20px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  font: 700 1rem/1.2 var(--font-body);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--c-text);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  cursor: progress;
+}
+
+.btn--primary {
+  background: var(--c-aubergine);
+  color: var(--c-cream);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: #2e0d37;
+}
+
+.btn--secondary {
+  background: transparent;
+  border-color: currentColor;
+  color: var(--c-text);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: var(--c-surface);
+}
+
+.btn--quiet {
+  min-height: 44px;
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--c-text);
+}
+
+.btn--quiet:hover:not(:disabled) {
+  background: var(--c-surface);
+}
+
+@media (prefers-color-scheme: dark) {
+  .btn--primary {
+    background: var(--c-mango);
+    color: var(--c-aubergine);
+  }
+
+  .btn--primary:hover:not(:disabled) {
+    background: #ffd166;
+  }
+}
+
+/* Confirm dialog */
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgb(0 0 0 / 0.55);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 400px;
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--c-surface);
+  color: var(--c-text);
+}
+
+.dialog__title {
+  margin: 0 0 8px;
+  font-size: 1.375rem;
+}
+
+.dialog__body {
+  margin: 0 0 20px;
+}
+
+.dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+}

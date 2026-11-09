@@ -1,6 +1,7 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { CardsProvider } from './context/CardsContext.jsx';
 import WalletPage from './pages/app/WalletPage.jsx';
+import AddCardPage from './pages/app/add/AddCardPage.jsx';
 
 function AppShell() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
       <Route path="/" element={<Navigate to="/app" replace />} />
       <Route path="/app" element={<AppShell />}>
         <Route index element={<WalletPage />} />
+        <Route path="add" element={<AddCardPage />} />
       </Route>
     </Routes>
   );
