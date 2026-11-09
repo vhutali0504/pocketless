@@ -8,3 +8,10 @@ playwright-report/
 coverage/
 .vercel
 .vite/
+
+# Private, never commit
+.private/
+/*.png
+/*.jpg
+/*.jpeg
+/pocketless-brand-board.svg

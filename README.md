@@ -82,3 +82,7 @@ docs/          design, plans, decisions and brand files
 ## Built by
 
 Elevate Digital Solutions
+
+## Licence
+
+The code is open source under the [MIT licence](LICENSE). The Pocketless name and the p-card logo are the project's brand: please don't use them for your own app.
