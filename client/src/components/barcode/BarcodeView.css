@@ -1,0 +1,42 @@
+.barcode-view {
+  background: #ffffff;
+  color: #000000;
+  padding: 12px 16px 16px;
+  border-radius: 12px;
+}
+.barcode-view__art {
+  width: 100%;
+  line-height: 0;
+}
+.barcode-view__art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+}
+.barcode-view__art--qr svg {
+  max-width: 320px;
+  margin: 0 auto;
+}
+.barcode-view__number,
+.barcode-view__fallback-number {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  color: #000000;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.barcode-view__number {
+  margin: 12px 0 0;
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+}
+.barcode-view__fallback-text {
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+.barcode-view__fallback-number {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
