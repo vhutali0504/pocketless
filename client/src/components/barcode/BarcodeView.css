@@ -1,6 +1,8 @@
 .barcode-view {
   background: #ffffff;
   color: #000000;
+  /* Always black on white, even in Windows high contrast / forced colours. */
+  forced-color-adjust: none;
   padding: 12px 16px 16px;
   border-radius: 12px;
 }
@@ -13,6 +15,13 @@
   width: 100%;
   height: auto;
   max-height: 60vh;
+}
+/* 1D barcodes: background and bars, without relying on JsBarcode's inline style attributes. */
+.barcode-view__art:not(.barcode-view__art--qr) svg > rect {
+  fill: #ffffff;
+}
+.barcode-view__art:not(.barcode-view__art--qr) svg > g {
+  fill: #000000;
 }
 .barcode-view__art--qr svg {
   max-width: 320px;

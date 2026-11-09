@@ -10,6 +10,19 @@ describe('BarcodeView', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
+  it('colours the 1D background and bars with fill attributes, not only inline styles', () => {
+    render(<BarcodeView value="4006381333931" format="EAN_13" />);
+    const svg = screen.getByRole('img', { name: 'Barcode for 4006381333931' }).querySelector('svg');
+    const background = svg.querySelector(':scope > rect');
+    const groups = svg.querySelectorAll(':scope > g');
+    expect(background).toHaveAttribute('fill', '#ffffff');
+    expect(groups.length).toBeGreaterThan(0);
+    groups.forEach((g) => {
+      expect(g).toHaveAttribute('fill', '#000000');
+      expect(g.querySelectorAll('rect').length).toBeGreaterThan(0);
+    });
+  });
+
   it('draws a QR code', async () => {
     render(<BarcodeView value="HELLO" format="QR_CODE" />);
     const img = await screen.findByRole('img', { name: 'Barcode for HELLO' });

@@ -42,6 +42,14 @@ function OneD({ value, format, onError }) {
         lineColor: '#000000',
       });
       const svg = ref.current;
+      // JsBarcode colours its background and bars with inline style attributes, which a strict
+      // CSP (style-src 'self') blocks, leaving SVG's default black fill. Presentation attributes
+      // are not styles, so they always apply (BarcodeView.css sets the same colours too).
+      for (const child of svg.children) {
+        const tag = child.tagName.toLowerCase();
+        if (tag === 'rect') child.setAttribute('fill', '#ffffff');
+        else if (tag === 'g') child.setAttribute('fill', '#000000');
+      }
       svg.setAttribute('shape-rendering', 'crispEdges');
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       svg.removeAttribute('width');
