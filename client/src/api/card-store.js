@@ -23,11 +23,13 @@ export class StorageUnavailableError extends Error {
 
 /** @returns {Promise<CardStore>} */
 export async function openCardStore() {
-  if (typeof globalThis.indexedDB === 'undefined') {
-    throw new StorageUnavailableError();
-  }
   let db;
   try {
+    // Inside the try: some browsers throw a SecurityError just for reading `indexedDB` when
+    // storage is blocked, and that must surface as StorageUnavailableError like everything else.
+    if (typeof globalThis.indexedDB === 'undefined') {
+      throw new StorageUnavailableError();
+    }
     db = await openDB(DB_NAME, DB_VERSION, {
       upgrade(database) {
         const cards = database.createObjectStore(STORE, { keyPath: 'id' });
@@ -35,6 +37,7 @@ export async function openCardStore() {
       },
     });
   } catch (cause) {
+    if (cause instanceof StorageUnavailableError) throw cause;
     throw new StorageUnavailableError('Could not open local storage', { cause });
   }
 

@@ -37,3 +37,49 @@ describe('ConfirmDialog keyboard handling after focus is lost', () => {
     expect(screen.getByRole('dialog').contains(document.activeElement)).toBe(true);
   });
 });
+
+describe('ConfirmDialog background', () => {
+  function Page({ open }) {
+    return (
+      <div>
+        <button type="button">Behind</button>
+        <ConfirmDialog
+          open={open}
+          title="Delete?"
+          body="Sure?"
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          onConfirm={() => {}}
+          onCancel={() => {}}
+        />
+      </div>
+    );
+  }
+
+  it('makes the page behind inert while open and restores it, and focus, on close', () => {
+    const { container, rerender } = render(<Page open={false} />);
+    const behind = screen.getByRole('button', { name: 'Behind' });
+    behind.focus();
+    rerender(<Page open />);
+    expect(container).toHaveAttribute('inert');
+    expect(screen.getByRole('dialog').closest('[inert]')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus();
+
+    rerender(<Page open={false} />);
+    expect(container).not.toHaveAttribute('inert');
+    expect(behind).toHaveFocus();
+  });
+
+  it('leaves something that was already inert alone', () => {
+    const other = document.createElement('div');
+    other.setAttribute('inert', '');
+    document.body.appendChild(other);
+    try {
+      const { rerender } = render(<Page open />);
+      rerender(<Page open={false} />);
+      expect(other).toHaveAttribute('inert');
+    } finally {
+      other.remove();
+    }
+  });
+});

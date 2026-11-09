@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import BarcodeView from '../barcode/BarcodeView.jsx';
+import { inertProps } from '../ui/inert.js';
 
 /** @typedef {import('../../lib/cards.js').Card} Card */
 
@@ -46,7 +47,8 @@ function WalletCard({ card, index, state, offsetY, till, tabbable, onToggle }) {
   if (offsetY !== 0) style.transform = `translateY(${offsetY}px)`;
 
   return (
-    <li className={`wallet-card${state === 'out' ? ' is-out' : ''}`} style={style}>
+    // A card that is away (another one is out) leaves the tab order and the accessibility tree.
+    <li className={`wallet-card${state === 'out' ? ' is-out' : ''}`} style={style} {...inertProps(state === 'away')}>
       <div className="wallet-card__sheet" aria-hidden="true" />
       <button
         type="button"

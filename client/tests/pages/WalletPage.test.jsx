@@ -249,4 +249,25 @@ describe('WalletPage', () => {
     expect(header).not.toHaveClass('is-dimmed');
     await settle();
   });
+
+  it('while a card is out, the header and the other cards are inert; putting it back restores them', async () => {
+    await seed(PNP, CHECKERS);
+    renderWallet();
+    const pnp = await screen.findByRole('button', { name: 'Pick n Pay, Smart Shopper' });
+    const checkers = cardButton('Checkers, Xtra Savings');
+    const header = screen.getByRole('banner');
+    expect(header).not.toHaveAttribute('inert');
+    expect(checkers.closest('li')).not.toHaveAttribute('inert');
+
+    fireEvent.click(pnp);
+    expect(header).toHaveAttribute('inert');
+    expect(checkers.closest('[inert]')).not.toBeNull();
+    expect(pnp.closest('[inert]')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Edit' }).closest('[inert]')).toBeNull();
+
+    fireEvent.click(pnp);
+    expect(header).not.toHaveAttribute('inert');
+    expect(checkers.closest('[inert]')).toBeNull();
+    await settle();
+  });
 });

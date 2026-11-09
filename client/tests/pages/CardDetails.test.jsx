@@ -91,6 +91,12 @@ describe('Card details', () => {
     await user.click(toggle);
     await waitFor(() => expect(screen.getByRole('switch', { name: 'Pin to top' })).toHaveAttribute('aria-checked', 'true'));
     expect((await store.get(card.id)).pinned).toBe(true);
+
+    // Back in the wallet, the pinned card comes first even though "Newer" was added after it.
+    await user.click(screen.getByRole('link', { name: /back/i }));
+    await screen.findByRole('button', { name: 'Newer' });
+    const order = screen.getAllByRole('button', { expanded: false }).map((b) => b.getAttribute('aria-label'));
+    expect(order).toEqual(['Clicks, ClubCard', 'Newer']);
   });
 
   it('changes the number through entry and confirm, saving only after confirming', async () => {

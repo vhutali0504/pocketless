@@ -44,4 +44,19 @@ describe('card store', () => {
       globalThis.indexedDB = original;
     }
   });
+
+  it('rejects with StorageUnavailableError when touching indexedDB throws (blocked storage)', async () => {
+    const original = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB');
+    Object.defineProperty(globalThis, 'indexedDB', {
+      configurable: true,
+      get() {
+        throw new DOMException('The operation is insecure.', 'SecurityError');
+      },
+    });
+    try {
+      await expect(openCardStore()).rejects.toBeInstanceOf(StorageUnavailableError);
+    } finally {
+      Object.defineProperty(globalThis, 'indexedDB', original);
+    }
+  });
 });

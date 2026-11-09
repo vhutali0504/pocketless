@@ -104,14 +104,9 @@ export default function WalletPage() {
 
   useWakeLock(expandedId !== null);
 
+  // status 'unavailable' never reaches this page: the /app layout shows StorageUnavailable instead.
   let body = null;
-  if (status === 'unavailable') {
-    body = (
-      <p className="wallet-message" role="alert">
-        This browser won&apos;t let Pocketless store cards on this device.
-      </p>
-    );
-  } else if (status === 'ready') {
+  if (status === 'ready') {
     body = visibleCards.length === 0 ? (
       <EmptyWallet />
     ) : (
@@ -128,7 +123,7 @@ export default function WalletPage() {
 
   return (
     <div className="wallet-page">
-      <AppHeader dimmed={expandedId !== null} />
+      <AppHeader dimmed={expandedId !== null} inert={expandedId !== null} />
       <main className="wallet-main" aria-busy={status === 'loading'}>
         {body}
       </main>
