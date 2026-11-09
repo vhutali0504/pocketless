@@ -4,13 +4,23 @@ import { VALUES, addCardViaUi } from './helpers.js';
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
-/** Runs axe and fails on any serious or critical violation, listing what and where. */
+// Best-practice landmark rules (outside the WCAG tags): every page has one <main> and no content
+// sits outside a landmark. These fail at any impact, moderate included.
+const LANDMARK_RULES = ['landmark-one-main', 'region', 'landmark-no-duplicate-main'];
+
+const summarise = (v) => `${v.id} (${v.impact}): ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`;
+
+/**
+ * Runs axe and fails on any serious or critical WCAG violation, or on any landmark finding,
+ * listing what and where.
+ */
 async function expectNoSeriousViolations(page, label) {
   const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze();
-  const bad = violations
-    .filter((v) => v.impact === 'serious' || v.impact === 'critical')
-    .map((v) => `${v.id} (${v.impact}): ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`);
+  const bad = violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map(summarise);
   expect(bad, `axe on ${label}`).toEqual([]);
+
+  const landmarks = await new AxeBuilder({ page }).withRules(LANDMARK_RULES).analyze();
+  expect(landmarks.violations.map(summarise), `axe landmarks on ${label}`).toEqual([]);
 }
 
 for (const colorScheme of ['light', 'dark']) {

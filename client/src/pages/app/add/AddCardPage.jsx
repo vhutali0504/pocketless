@@ -88,7 +88,7 @@ export default function AddCardPage() {
   if (step === 'store') {
     // StorePicker draws its own header: it has a second view for "Other store".
     return (
-      <div className="add-page">
+      <main className="add-page">
         <StorePicker
           onBack={() => navigate('/app')}
           onPick={(picked) => {
@@ -97,7 +97,7 @@ export default function AddCardPage() {
             scanAgain();
           }}
         />
-      </div>
+      </main>
     );
   }
   if (step === 'scan') {
@@ -152,9 +152,9 @@ export default function AddCardPage() {
   }
 
   return (
-    <div className="add-page">
+    <main className="add-page">
       <StepHeader key={step} title={title} onBack={back} />
       {body}
-    </div>
+    </main>
   );
 }

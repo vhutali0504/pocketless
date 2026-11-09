@@ -173,6 +173,17 @@ describe('Card details', () => {
     expect((await store.get(card.id)).deletedAt).toBeNull();
   });
 
+  it('has exactly one main landmark, found or not', async () => {
+    await openDetails();
+    expect(screen.getAllByRole('main')).toHaveLength(1);
+  });
+
+  it('has a main landmark on the not-found view', async () => {
+    renderAt('/app/cards/nope');
+    await screen.findByText("We couldn't find that card");
+    expect(screen.getAllByRole('main')).toHaveLength(1);
+  });
+
   it('says so when the card does not exist', async () => {
     renderAt('/app/cards/nope');
     expect(await screen.findByText("We couldn't find that card")).toBeInTheDocument();

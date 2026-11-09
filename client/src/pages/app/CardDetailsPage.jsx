@@ -71,7 +71,7 @@ function Details({ card }) {
     // check (say, CODE_128 digits with a valid EAN check digit) keeps the card's symbology.
     const expectedFormats = [...new Set([card.format, ...(store?.expectedFormats ?? [])])];
     return (
-      <div className="add-page">
+      <main className="add-page">
         <header className="add-header">
           <h1 className="add-header__title">Change card number</h1>
         </header>
@@ -86,7 +86,7 @@ function Details({ card }) {
           }}
           onCancel={() => setView('main')}
         />
-      </div>
+      </main>
     );
   }
 
@@ -105,7 +105,7 @@ function Details({ card }) {
       setBusy(false);
     };
     return (
-      <div className="add-page">
+      <main className="add-page">
         <header className="add-header">
           <h1 className="add-header__title">Check your card</h1>
         </header>
@@ -127,7 +127,7 @@ function Details({ card }) {
             setView('number');
           }}
         />
-      </div>
+      </main>
     );
   }
 
@@ -146,7 +146,7 @@ function Details({ card }) {
   const options = colourOptions(card, store);
 
   return (
-    <div className="add-page">
+    <main className="add-page">
       <header className="add-header">
         <BackLink />
       </header>
@@ -230,7 +230,7 @@ function Details({ card }) {
           }
         }}
       />
-    </div>
+    </main>
   );
 }
 
@@ -239,16 +239,22 @@ export default function CardDetailsPage() {
   const { id } = useParams();
   const { status, cards } = useCards();
 
-  if (status === 'loading') return <p className="details__loading">Loading…</p>;
+  if (status === 'loading') {
+    return (
+      <main className="add-page">
+        <p className="details__loading">Loading…</p>
+      </main>
+    );
+  }
   const card = cards.find((c) => c.id === id && !c.deletedAt);
   if (!card) {
     return (
-      <div className="add-page">
+      <main className="add-page">
         <div className="add-body">
           <h1 className="add-header__title">We couldn&apos;t find that card</h1>
           <BackLink>Back to your cards</BackLink>
         </div>
-      </div>
+      </main>
     );
   }
   return <Details key={card.id} card={card} />;

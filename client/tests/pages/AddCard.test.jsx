@@ -142,6 +142,17 @@ describe('AddCardPage', () => {
     expect(await store.list('guest')).toHaveLength(0);
   });
 
+  it('has exactly one main landmark on every step', async () => {
+    const user = userEvent.setup();
+    renderAt();
+    await screen.findByRole('button', { name: /^Clicks/ });
+    expect(screen.getAllByRole('main')).toHaveLength(1);
+    await pickStore(user, 'Clicks');
+    expect(screen.getAllByRole('main')).toHaveLength(1);
+    await user.click(screen.getByRole('button', { name: 'Type the number instead' }));
+    expect(screen.getAllByRole('main')).toHaveLength(1);
+  });
+
   it('accepts a code seen in 3 frames in a row even when another code is in view too', async () => {
     const user = userEvent.setup();
     renderAt();
