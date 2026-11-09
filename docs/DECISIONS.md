@@ -39,3 +39,4 @@ Every significant decision and why.
 - "Change number" on card details prefers the card's current format, so a CODE_128 card whose new digits happen to pass an EAN check digit stays CODE_128.
 - Only the Latin subsets of Nunito and Baloo 2 are bundled and precached (the `latin-*.css` Fontsource entries). Characters outside Latin fall back to the system font.
 - Light colours only (owner's request, 2026-11-09): the app ignores the phone's dark mode. `color-scheme: only light` also opts out of Chrome's automatic dark theme, so the barcode screen always looks the same and stays easy to scan.
+- App updates (2026-11-09): the app registers its own service worker (client/src/sw-updates.js), checks for a new version each time it's opened or brought to the front, and reloads into it only on the wallet screen with no card out, so it never interrupts the till or a half-added card.

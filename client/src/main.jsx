@@ -7,6 +7,9 @@ import '@fontsource/baloo-2/latin-700.css';
 import './styles/tokens.css';
 import './styles/global.css';
 import App from './App.jsx';
+import { setupUpdates } from './sw-updates.js';
+
+if (import.meta.env.PROD) setupUpdates();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
