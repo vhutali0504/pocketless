@@ -10,20 +10,20 @@
   width: 100%;
   line-height: 0;
 }
-.barcode-view__art svg {
+/* The barcode is a picture (see BarcodeView.jsx) so browser dark modes can't recolour it.
+   It carries its own white quiet zone. */
+.barcode-view__art img {
   display: block;
   width: 100%;
   height: auto;
   max-height: 60vh;
+  object-fit: contain;
+  background: #ffffff;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
-/* 1D barcodes: background and bars, without relying on JsBarcode's inline style attributes. */
-.barcode-view__art:not(.barcode-view__art--qr) svg > rect {
-  fill: #ffffff;
-}
-.barcode-view__art:not(.barcode-view__art--qr) svg > g {
-  fill: #000000;
-}
-.barcode-view__art--qr svg {
+.barcode-view__art--qr img {
   max-width: 320px;
   margin: 0 auto;
 }

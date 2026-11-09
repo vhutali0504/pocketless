@@ -30,7 +30,7 @@ test('a saved card opens with its barcode while offline', async ({ page, context
   await page.getByRole('button', { name: /^Clicks/ }).click();
   const barcode = page.getByRole('img', { name: `Barcode for ${VALUE}` });
   await expect(barcode).toBeVisible();
-  await expect(barcode.locator('svg')).toBeVisible();
+  await expect(barcode.locator('img')).toBeVisible();
 });
 
 test('the web app manifest describes an installable app scoped to /app/', async ({ request }) => {

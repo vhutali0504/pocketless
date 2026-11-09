@@ -2,13 +2,14 @@ import { expect, test } from '@playwright/test';
 import sharp from 'sharp';
 import { VALUES, addCardViaUi } from './helpers.js';
 
-const CSP = "style-src 'self'";
+// Plan 3's CSP: no inline styles; the barcode picture is a data: image.
+const CSP = "style-src 'self'; img-src 'self' data:";
 
 // The service worker would answer navigations itself, bypassing page.route and its header.
 test.use({ serviceWorkers: 'block' });
 
 test.beforeEach(async ({ page }) => {
-  // Serve every HTML document with a strict style-src, as Plan 3's CSP header will.
+  // Serve every HTML document with a strict CSP, as Plan 3's header will.
   await page.route('**/*', async (route) => {
     if (route.request().resourceType() !== 'document') return route.continue();
     const response = await route.fetch();
@@ -16,29 +17,26 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test('a pulled-out barcode is black on white under a strict CSP (style-src self)', async ({ page }) => {
-  const blocked = [];
-  page.on('console', (msg) => {
-    if (/Content Security Policy/i.test(msg.text())) blocked.push(msg.text());
-  });
-
+test('a pulled-out barcode is black on white under a strict CSP', async ({ page }) => {
   await addCardViaUi(page, 'Clicks', VALUES[0]);
-  const art = page.getByRole('img', { name: `Barcode for ${VALUES[0]}` });
-  await expect(art).toBeVisible();
 
-  // The CSP is really in force: JsBarcode's inline style attributes were refused.
-  expect(blocked.length, 'CSP violations reported').toBeGreaterThan(0);
+  // The CSP is really in force: an inline style attribute is refused.
+  const inlineStyleApplied = await page.evaluate(() => {
+    const probe = document.createElement('div');
+    probe.setAttribute('style', 'color: rgb(1, 2, 3)');
+    document.body.append(probe);
+    const applied = getComputedStyle(probe).color === 'rgb(1, 2, 3)';
+    probe.remove();
+    return applied;
+  });
+  expect(inlineStyleApplied, 'inline styles must be blocked by the CSP').toBe(false);
 
-  const fills = await art.locator('svg').evaluate((svg) => ({
-    background: getComputedStyle(svg.querySelector(':scope > rect')).fill,
-    bars: [...svg.querySelectorAll(':scope > g')].map((g) => getComputedStyle(g).fill),
-  }));
-  expect(fills.background).toBe('rgb(255, 255, 255)');
-  expect(fills.bars.length).toBeGreaterThan(0);
-  for (const fill of fills.bars) expect(fill).toBe('rgb(0, 0, 0)');
+  const picture = page.getByRole('img', { name: `Barcode for ${VALUES[0]}` }).locator('img');
+  await expect(picture).toBeVisible();
+  await expect.poll(() => picture.evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
 
-  // And on screen: the quiet zone at the left edge is white, and the drawing has black bars.
-  const png = await art.locator('svg').screenshot();
+  // On screen: the quiet zone at the left edge is white, and the drawing has black bars.
+  const png = await picture.screenshot();
   const { data, info } = await sharp(png).removeAlpha().raw().toBuffer({ resolveWithObject: true });
   const pixel = (x, y) => {
     const i = (y * info.width + x) * info.channels;
