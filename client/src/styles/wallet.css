@@ -1,0 +1,294 @@
+/* Wallet screen. Motion rule: only transform and opacity ever animate. */
+
+html.is-card-out,
+html.is-card-out body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.wallet-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Header */
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 472px;
+  margin: 0 auto;
+  padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+  background: var(--c-bg);
+  transition: opacity 200ms ease;
+}
+
+.app-header.is-dimmed {
+  opacity: 0.25;
+}
+
+.app-header__title {
+  margin: 0;
+  font-size: 1.75rem;
+  color: var(--c-text);
+}
+
+.app-header__add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--c-mango);
+  color: var(--c-aubergine);
+}
+
+.app-header__add:focus-visible {
+  outline: 3px solid var(--c-text);
+  outline-offset: 2px;
+}
+
+/* Page body */
+
+.wallet-main {
+  max-width: 472px;
+  margin: 0 auto;
+  padding: 8px 16px calc(32px + env(safe-area-inset-bottom));
+}
+
+.wallet-message {
+  margin: 32px 0;
+  font-size: 1.0625rem;
+}
+
+/* Empty state */
+
+.wallet-empty {
+  margin: 48px 0;
+  text-align: center;
+}
+
+.wallet-empty__title {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+}
+
+.wallet-empty__text {
+  margin: 0 auto 24px;
+  max-width: 30ch;
+  color: var(--c-text-muted);
+}
+
+.wallet-empty__cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: var(--c-aubergine);
+  color: var(--c-cream);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.wallet-empty__cta:focus-visible {
+  outline: 3px solid var(--c-text);
+  outline-offset: 3px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .wallet-empty__cta {
+    background: var(--c-mango);
+    color: var(--c-aubergine);
+  }
+}
+
+/* Stack */
+
+.wallet-stack {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wallet-card {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 160px;
+  transition: transform var(--motion-card) var(--ease-card);
+}
+
+/* The colour that the card "grows" into. It sits behind the face, scaled down, and un-scales when
+   the card is out, so the card lengthens without animating height. */
+.wallet-card__sheet {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  right: 0;
+  height: calc(var(--sheet-h) - 16px);
+  border-radius: 0 0 16px 16px;
+  background: var(--card-colour);
+  transform: scaleY(var(--sheet-rest));
+  transform-origin: top;
+  transition: transform var(--motion-card) var(--ease-card);
+}
+
+.wallet-card__sheet::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  transition: opacity var(--motion-card) var(--ease-card);
+}
+
+.wallet-card.is-out .wallet-card__sheet {
+  transform: none;
+}
+
+.wallet-card.is-out .wallet-card__sheet::after {
+  opacity: 1;
+}
+
+.wallet-card__face {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  height: 160px;
+  margin: 0;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--card-colour);
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.14);
+  color: #ffffff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: transform 120ms ease-out;
+}
+
+.wallet-card__face:active {
+  transform: scale(0.985);
+}
+
+.wallet-card__face:focus-visible {
+  outline: 3px solid var(--c-text);
+  outline-offset: 2px;
+}
+
+.wallet-card__name,
+.wallet-card__programme {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.wallet-card__name {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.wallet-card__programme {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+/* Till view: the white barcode panel inside the pulled-out card. */
+
+.wallet-till {
+  position: absolute;
+  top: 66px;
+  left: 10px;
+  right: 10px;
+  height: calc(var(--sheet-h) - 76px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1d1d1f;
+  cursor: pointer;
+  overflow: hidden;
+  animation: till-in 250ms var(--ease-card) 140ms both;
+}
+
+.wallet-till.is-closing {
+  pointer-events: none;
+  animation: till-out 150ms ease-out both;
+}
+
+.wallet-till .barcode-view {
+  width: 100%;
+}
+
+.wallet-till__hint {
+  margin: 12px 0 0;
+  font-size: 0.875rem;
+  color: #4a4a4a;
+}
+
+.wallet-till__edit {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  color: #43144f;
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.wallet-till__edit:focus-visible {
+  outline: 3px solid #43144f;
+  outline-offset: 2px;
+}
+
+@keyframes till-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes till-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Reduced motion: the card appears with no slide. */
+
+.reduced-motion,
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  transition-duration: 0.01ms !important;
+  transition-delay: 0ms !important;
+  animation-duration: 0.01ms !important;
+  animation-delay: 0ms !important;
+}

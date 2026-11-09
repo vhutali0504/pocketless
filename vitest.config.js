@@ -9,6 +9,7 @@ export default defineConfig({
     setupFiles: ['client/tests/setup.js'],
     include: ['client/tests/**/*.test.{js,jsx}'],
     exclude: ['client/tests/e2e/**', 'node_modules/**'],
-    css: false,
+    // Only the wallet styles are loaded, so tests can check truncation and the reduced-motion rule.
+    css: { include: [/wallet\.css$/] },
   },
 });
