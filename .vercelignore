@@ -1,0 +1,11 @@
+.superpowers
+node_modules
+dist
+test-results
+playwright-report
+coverage
+*.png
+!client/public/**/*.png
+!docs/brand/*.png
+.env
+.env.*
