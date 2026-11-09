@@ -1,0 +1,27 @@
+:root {
+  color-scheme: light dark;
+
+  --c-aubergine: #43144f;
+  --c-mango: #ffc02e;
+  --c-cream: #fff6e6;
+
+  --c-bg: var(--c-cream);
+  --c-surface: #ffffff;
+  --c-text: var(--c-aubergine);
+  --c-text-muted: #6b4a75;
+
+  --motion-card: 340ms;
+  --ease-card: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --font-display: 'Baloo 2', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-bg: #1a1320;
+    --c-surface: #261c2e;
+    --c-text: var(--c-cream);
+    --c-text-muted: #c9b8d0;
+  }
+}
