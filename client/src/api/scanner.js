@@ -3,6 +3,8 @@ import { FORMATS } from '../lib/barcode.js';
 /** @typedef {import('../lib/cards.js').BarcodeFormat} BarcodeFormat */
 
 const DECODE_INTERVAL_MS = 100;
+// After this many detect() failures in a row, the BarcodeDetector is treated as broken.
+const MAX_DETECTOR_FAILURES = 10;
 
 const TO_DETECTOR = {
   EAN_13: 'ean_13',
@@ -32,12 +34,18 @@ function toScannerError(err) {
   return new ScannerError('failed', err && err.message);
 }
 
+/** Returns null when BarcodeDetector is missing, lacks a format, or fails to set up. */
 async function createDetectorDecoder(formats) {
   const wanted = formats.map((f) => TO_DETECTOR[f]);
   if (typeof window === 'undefined' || !('BarcodeDetector' in window) || !window.BarcodeDetector) return null;
-  const supported = await window.BarcodeDetector.getSupportedFormats();
-  if (!wanted.every((f) => supported.includes(f))) return null;
-  const detector = new window.BarcodeDetector({ formats: wanted });
+  let detector;
+  try {
+    const supported = await window.BarcodeDetector.getSupportedFormats();
+    if (!Array.isArray(supported) || !wanted.every((f) => supported.includes(f))) return null;
+    detector = new window.BarcodeDetector({ formats: wanted });
+  } catch {
+    return null; // a broken detector: use ZXing instead
+  }
   return async (video) => {
     const found = await detector.detect(video);
     return found
@@ -60,7 +68,7 @@ async function createZxingDecoder(formats) {
     if (!video.videoWidth || !video.videoHeight) return [];
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
+    canvas.getContext('2d', { willReadFrequently: true }).drawImage(video, 0, 0);
     try {
       const result = reader.decodeFromCanvas(canvas);
       const format = fromZxing[result.getBarcodeFormat()];
@@ -73,15 +81,18 @@ async function createZxingDecoder(formats) {
 
 /**
  * Camera scanner. Emits raw reads only; consensus is the caller's job.
+ * `onFrame` gets every decoded frame's reads at once (an empty array when the frame held no code);
+ * `onRead` gets each read on its own. Either or both may be given.
  *
  * @param {HTMLVideoElement} video
  * @param {{
  *   formats?: BarcodeFormat[],
- *   onRead: (read: {value: string, format: BarcodeFormat}) => void,
+ *   onFrame?: (reads: {value: string, format: BarcodeFormat}[]) => void,
+ *   onRead?: (read: {value: string, format: BarcodeFormat}) => void,
  *   onError: (err: ScannerError) => void
  * }} options
  */
-export function createScanner(video, { formats, onRead, onError }) {
+export function createScanner(video, { formats, onFrame, onRead, onError }) {
   const wanted = formats && formats.length ? formats : FORMATS;
   let generation = 0;
   let stream = null;
@@ -115,7 +126,8 @@ export function createScanner(video, { formats, onRead, onError }) {
         opened.getTracks().forEach((t) => t.stop());
         return;
       }
-      const decode = (await createDetectorDecoder(wanted)) || (await createZxingDecoder(wanted));
+      const detectorDecode = await createDetectorDecoder(wanted);
+      let decode = detectorDecode || (await createZxingDecoder(wanted));
       if (gen !== generation) {
         opened.getTracks().forEach((t) => t.stop());
         return;
@@ -131,18 +143,37 @@ export function createScanner(video, { formats, onRead, onError }) {
         if (gen !== generation) return;
       }
 
+      let failures = 0;
       const tick = async () => {
         let reads = [];
         try {
           reads = await decode(video);
+          failures = 0;
         } catch {
-          // a failed frame is just a frame with no code
+          // a failed frame is just a frame with no code, unless the detector keeps failing
+          failures += 1;
+          if (decode === detectorDecode && failures >= MAX_DETECTOR_FAILURES) {
+            try {
+              const zxing = await createZxingDecoder(wanted);
+              if (gen !== generation) return;
+              decode = zxing;
+            } catch {
+              // ZXing could not load either; keep trying the detector
+            }
+            failures = 0;
+          }
         }
         if (gen !== generation) return;
         try {
-          for (const r of reads) {
-            onRead(r);
+          if (onFrame) {
+            onFrame(reads);
             if (gen !== generation) return; // the callback stopped the scanner
+          }
+          if (onRead) {
+            for (const r of reads) {
+              onRead(r);
+              if (gen !== generation) return; // the callback stopped the scanner
+            }
           }
         } catch {
           // a throwing callback must not kill the decode loop

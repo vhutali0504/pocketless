@@ -222,3 +222,136 @@ describe('createScanner fallback', () => {
     s.stop();
   });
 });
+
+describe('createScanner onFrame', () => {
+  it('delivers every read of a frame at once, and empty frames as []', async () => {
+    setMedia(vi.fn().mockResolvedValue(makeStream()));
+    const frames = [
+      [
+        { rawValue: '4006381333931', format: 'ean_13' },
+        { rawValue: '5901234123457', format: 'ean_13' },
+      ],
+      [],
+    ];
+    let i = 0;
+    class TwoCodes {
+      static getSupportedFormats = async () => ALL;
+      detect = async () => frames[Math.min(i++, frames.length - 1)];
+    }
+    vi.stubGlobal('BarcodeDetector', TwoCodes);
+    const onFrame = vi.fn();
+    const onRead = vi.fn();
+    const s = createScanner(video, { onFrame, onRead, onError: vi.fn() });
+    await s.start();
+    await vi.advanceTimersByTimeAsync(100);
+    expect(onFrame).toHaveBeenNthCalledWith(1, [
+      { value: '4006381333931', format: 'EAN_13' },
+      { value: '5901234123457', format: 'EAN_13' },
+    ]);
+    expect(onRead).toHaveBeenCalledTimes(2);
+    await vi.advanceTimersByTimeAsync(100);
+    expect(onFrame).toHaveBeenNthCalledWith(2, []);
+    s.stop();
+  });
+
+  it('works with onFrame alone (no onRead)', async () => {
+    setMedia(vi.fn().mockResolvedValue(makeStream()));
+    vi.stubGlobal('BarcodeDetector', makeDetector([{ rawValue: '4006381333931', format: 'ean_13' }]).FakeDetector);
+    const onFrame = vi.fn();
+    const onError = vi.fn();
+    const s = createScanner(video, { onFrame, onError });
+    await s.start();
+    await vi.advanceTimersByTimeAsync(300);
+    expect(onFrame.mock.calls.length).toBeGreaterThanOrEqual(3);
+    expect(onError).not.toHaveBeenCalled();
+    s.stop();
+  });
+});
+
+describe('createScanner with a broken BarcodeDetector', () => {
+  it('falls back to ZXing when getSupportedFormats() throws', async () => {
+    setMedia(vi.fn().mockResolvedValue(makeStream()));
+    const ctor = vi.fn();
+    mockZxing(ctor);
+    class Broken {
+      static getSupportedFormats = vi.fn(async () => {
+        throw new Error('boom');
+      });
+    }
+    vi.stubGlobal('BarcodeDetector', Broken);
+    const onError = vi.fn();
+    const s = createScanner(video, { onRead: vi.fn(), onError });
+    await s.start();
+    expect(ctor).toHaveBeenCalledTimes(1);
+    expect(onError).not.toHaveBeenCalled();
+    s.stop();
+  });
+
+  it('falls back to ZXing when the constructor throws', async () => {
+    setMedia(vi.fn().mockResolvedValue(makeStream()));
+    const ctor = vi.fn();
+    mockZxing(ctor);
+    class Broken {
+      static getSupportedFormats = async () => ALL;
+      constructor() {
+        throw new TypeError('not supported');
+      }
+    }
+    vi.stubGlobal('BarcodeDetector', Broken);
+    const onError = vi.fn();
+    const s = createScanner(video, { onRead: vi.fn(), onError });
+    await s.start();
+    expect(ctor).toHaveBeenCalledTimes(1);
+    expect(onError).not.toHaveBeenCalled();
+    s.stop();
+  });
+
+  it('switches to ZXing after 10 detect() throws in a row', async () => {
+    setMedia(vi.fn().mockResolvedValue(makeStream()));
+    const ctor = vi.fn();
+    mockZxing(ctor);
+    const detect = vi.fn(async () => {
+      throw new Error('detect failed');
+    });
+    class Flaky {
+      static getSupportedFormats = async () => ALL;
+      detect = detect;
+    }
+    vi.stubGlobal('BarcodeDetector', Flaky);
+    const onError = vi.fn();
+    const s = createScanner(video, { onRead: vi.fn(), onError });
+    await s.start();
+    await vi.advanceTimersByTimeAsync(900);
+    expect(detect).toHaveBeenCalledTimes(9);
+    expect(ctor).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(100);
+    await vi.waitFor(() => expect(ctor).toHaveBeenCalledTimes(1));
+    await vi.advanceTimersByTimeAsync(500);
+    expect(detect).toHaveBeenCalledTimes(10); // the detector is not used again
+    expect(onError).not.toHaveBeenCalled();
+    s.stop();
+  });
+
+  it('keeps the detector when its failures are not consecutive', async () => {
+    setMedia(vi.fn().mockResolvedValue(makeStream()));
+    const ctor = vi.fn();
+    mockZxing(ctor);
+    let n = 0;
+    const detect = vi.fn(async () => {
+      n += 1;
+      if (n % 5 === 0) return [];
+      throw new Error('detect failed');
+    });
+    class Flaky {
+      static getSupportedFormats = async () => ALL;
+      detect = detect;
+    }
+    vi.stubGlobal('BarcodeDetector', Flaky);
+    const s = createScanner(video, { onRead: vi.fn(), onError: vi.fn() });
+    await s.start();
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(ctor).not.toHaveBeenCalled();
+    expect(detect.mock.calls.length).toBeGreaterThanOrEqual(15);
+    s.stop();
+  });
+});

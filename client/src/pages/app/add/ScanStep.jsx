@@ -14,7 +14,7 @@ const CAMERA_ERROR_COPY = {
 };
 
 /**
- * Step 2: the camera. A read is accepted only after 3 identical checksum-valid decodes in a row.
+ * Step 2: the camera. A code is accepted only once it is decoded (checksum-valid) in 3 frames in a row.
  * The scanner is stopped as soon as a read is accepted and whenever this step goes away.
  * @param {{ store: import('../../../lib/stores.js').Store,
  *   onResult(read: { value: string, format: BarcodeFormat }): void, onManual(): void }} props
@@ -41,18 +41,23 @@ export default function ScanStep({ store, onResult, onManual }) {
     let done = false;
     const scanner = createScanner(video, {
       formats: formats ?? undefined,
-      onRead(read) {
+      onFrame(reads) {
         // Runs inside the scanner's decode loop: it must never throw.
         try {
-          if (done || !read || typeof read.value !== 'string') return;
-          if (!validateValue(normaliseValue(read.value, read.format), read.format).ok) return;
-          const accepted = consensus.push(read);
+          if (done || !Array.isArray(reads)) return;
+          const usable = reads.filter(
+            (read) =>
+              read &&
+              typeof read.value === 'string' &&
+              validateValue(normaliseValue(read.value, read.format), read.format).ok,
+          );
+          const accepted = consensus.pushFrame(usable);
           if (!accepted) return;
           done = true;
           scanner.stop();
           onResultRef.current(accepted);
         } catch {
-          // a bad read is just a read we don't use
+          // a bad frame is just a frame we don't use
         }
       },
       onError(err) {

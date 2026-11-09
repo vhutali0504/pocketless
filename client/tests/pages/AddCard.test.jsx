@@ -62,9 +62,11 @@ function renderAt(entry = '/app/add') {
 
 const latest = () => scanners.list[scanners.list.length - 1];
 
+/** Delivers `times` camera frames, each holding the given read(s). */
 function emit(read, times = 1) {
+  const reads = Array.isArray(read) ? read : [read];
   act(() => {
-    for (let i = 0; i < times; i += 1) latest().opts.onRead(read);
+    for (let i = 0; i < times; i += 1) latest().opts.onFrame(reads);
   });
 }
 
@@ -140,13 +142,26 @@ describe('AddCardPage', () => {
     expect(await store.list('guest')).toHaveLength(0);
   });
 
-  it('ignores reads that fail the checksum or the value rules, and onRead never throws', async () => {
+  it('accepts a code seen in 3 frames in a row even when another code is in view too', async () => {
     const user = userEvent.setup();
     renderAt();
     await pickStore(user, 'Clicks');
-    const { onRead } = latest().opts;
-    expect(() => onRead({ value: null, format: 'EAN_13' })).not.toThrow();
-    expect(() => onRead(undefined)).not.toThrow();
+    const other = { value: '5901234123457', format: 'EAN_13' };
+    emit([GOOD_READ, other], 2);
+    expect(screen.queryByText(CONFIRM_QUESTION)).not.toBeInTheDocument();
+    emit([GOOD_READ, other]);
+    expect(await screen.findByText(CONFIRM_QUESTION)).toBeInTheDocument();
+    expect(latest().stop).toHaveBeenCalled();
+  });
+
+  it('ignores reads that fail the checksum or the value rules, and onFrame never throws', async () => {
+    const user = userEvent.setup();
+    renderAt();
+    await pickStore(user, 'Clicks');
+    const { onFrame } = latest().opts;
+    expect(() => onFrame([{ value: null, format: 'EAN_13' }])).not.toThrow();
+    expect(() => onFrame([undefined])).not.toThrow();
+    expect(() => onFrame(undefined)).not.toThrow();
     emit({ value: '4006381333932', format: 'EAN_13' }, 3); // bad check digit
     emit({ value: 'A'.repeat(65), format: 'CODE_128' }, 3); // longer than a card value may be
     expect(screen.queryByText(CONFIRM_QUESTION)).not.toBeInTheDocument();
