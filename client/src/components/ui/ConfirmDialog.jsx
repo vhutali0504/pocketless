@@ -16,6 +16,11 @@ export default function ConfirmDialog({ open, title, body, confirmLabel, cancelL
   const dialogRef = useRef(null);
   const cancelRef = useRef(null);
 
+  const onCancelRef = useRef(onCancel);
+  useEffect(() => {
+    onCancelRef.current = onCancel;
+  });
+
   useEffect(() => {
     if (!open) return undefined;
     const opener = document.activeElement;
@@ -25,28 +30,35 @@ export default function ConfirmDialog({ open, title, body, confirmLabel, cancelL
     };
   }, [open]);
 
-  if (!open) return null;
+  // On the document, not the dialog: after a click on the backdrop focus falls to <body>, and
+  // Escape and the Tab trap must keep working wherever focus is while the dialog is open.
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onCancelRef.current();
+        return;
+      }
+      if (event.key !== 'Tab' || !dialogRef.current) return;
+      const items = [...dialogRef.current.querySelectorAll(FOCUSABLE)];
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const inside = dialogRef.current.contains(document.activeElement);
+      if (event.shiftKey && (document.activeElement === first || !inside)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !inside)) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [open]);
 
-  const onKeyDown = (event) => {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      onCancel();
-      return;
-    }
-    if (event.key !== 'Tab') return;
-    const items = [...dialogRef.current.querySelectorAll(FOCUSABLE)];
-    if (items.length === 0) return;
-    const first = items[0];
-    const last = items[items.length - 1];
-    const inside = dialogRef.current.contains(document.activeElement);
-    if (event.shiftKey && (document.activeElement === first || !inside)) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && (document.activeElement === last || !inside)) {
-      event.preventDefault();
-      first.focus();
-    }
-  };
+  if (!open) return null;
 
   return (
     <div className="dialog-backdrop">
@@ -57,7 +69,6 @@ export default function ConfirmDialog({ open, title, body, confirmLabel, cancelL
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={bodyId}
-        onKeyDown={onKeyDown}
       >
         <h2 id={titleId} className="dialog__title">{title}</h2>
         <p id={bodyId} className="dialog__body">{body}</p>

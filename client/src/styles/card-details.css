@@ -1,0 +1,70 @@
+/* Card details. Nothing animates here. */
+
+.details__back {
+  margin-left: -12px;
+  padding-left: 12px;
+}
+
+.details__loading {
+  padding: 24px 16px;
+}
+
+.details__preview {
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--card-colour);
+  color: #ffffff;
+}
+
+.details__name {
+  margin: 0;
+  font: 700 1.5rem/1.2 var(--font-display);
+  overflow-wrap: anywhere;
+}
+
+.details__programme {
+  margin: 2px 0 0;
+}
+
+.details__save {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.details__pin {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.details__pin input {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--c-aubergine);
+}
+
+.details__pin input:focus-visible {
+  outline: 3px solid var(--c-text);
+  outline-offset: 2px;
+}
+
+.details__status {
+  margin: 0;
+  font-weight: 700;
+}
+
+/* Destructive but calm: an Aubergine outline like the other secondary buttons, with a heavier border. */
+.details__delete {
+  border-width: 3px;
+  margin-top: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .details__pin input {
+    accent-color: var(--c-mango);
+  }
+}
