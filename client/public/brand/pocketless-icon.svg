@@ -1,7 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Pocketless">
-  <rect x="1.5" y="1.5" width="197" height="197" rx="44" fill="#43144F" stroke="#6B3A78" stroke-width="3"/>
+  <rect x="1.5" y="1.5" width="197" height="197" rx="42" fill="#43144F" stroke="#6B3A6E" stroke-width="3"/>
   <g id="mark">
-    <path fill="#FFC02E" d="M63 35H128A22 22 0 0 1 150 57V85A22 22 0 0 1 128 107H75V152A12 12 0 0 1 51 152V47A12 12 0 0 1 63 35Z"/>
-    <path fill="#43144F" d="M88 51h7v40h-7zM102 51h7v40h-7zM116 51h6v40h-6zM129 51h6v40h-6z"/>
+    <rect x="50" y="35" width="101" height="72" rx="24" fill="#FFC02E"/>
+    <rect x="50" y="35" width="28" height="129" rx="14" fill="#FFC02E"/>
+    <rect x="90" y="44" width="5.2" height="48" fill="#43144F"/>
+    <rect x="103" y="44" width="10" height="48" fill="#43144F"/>
+    <rect x="119" y="44" width="5.2" height="48" fill="#43144F"/>
+    <rect x="131" y="44" width="6" height="48" fill="#43144F"/>
   </g>
 </svg>
