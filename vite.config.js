@@ -30,7 +30,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,woff2,png,svg}'],
         globIgnores: ['**/zxing-*.js'],
         navigateFallback: '/index.html',
-        navigateFallbackAllowlist: [/^\/app/],
+        navigateFallbackAllowlist: [/^\/app(\/|$)/],
         runtimeCaching: [
           {
             // Scanner library: cached on first use so scanning still works offline afterwards.
