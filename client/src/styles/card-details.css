@@ -44,7 +44,7 @@
   width: 24px;
   height: 24px;
   margin: 0;
-  accent-color: var(--c-aubergine);
+  accent-color: var(--c-control);
 }
 
 .details__pin input:focus-visible {

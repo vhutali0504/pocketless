@@ -67,7 +67,7 @@
 }
 
 .add-field__input[aria-invalid='true'] {
-  border-color: #b3261e;
+  border-color: var(--c-error);
 }
 
 .add-field__input--number {
@@ -82,7 +82,7 @@
 
 .add-error {
   margin: 0;
-  color: #b3261e;
+  color: var(--c-error);
   font-weight: 700;
 }
 

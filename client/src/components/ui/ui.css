@@ -24,12 +24,12 @@
 }
 
 .btn--primary {
-  background: var(--c-aubergine);
-  color: var(--c-cream);
+  background: var(--c-primary-bg);
+  color: var(--c-primary-fg);
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: #2e0d37;
+  background: var(--c-primary-hover);
 }
 
 .btn--secondary {

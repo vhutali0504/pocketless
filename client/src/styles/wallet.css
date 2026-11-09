@@ -48,6 +48,27 @@ html.is-card-out body {
   color: var(--c-aubergine);
 }
 
+.app-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-header__theme {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--c-text);
+  cursor: pointer;
+}
+
+.app-header__theme:focus-visible,
 .app-header__add:focus-visible {
   outline: 3px solid var(--c-text);
   outline-offset: 2px;
@@ -90,8 +111,8 @@ html.is-card-out body {
   min-height: 48px;
   padding: 0 24px;
   border-radius: 999px;
-  background: var(--c-aubergine);
-  color: var(--c-cream);
+  background: var(--c-primary-bg);
+  color: var(--c-primary-fg);
   font-weight: 700;
   text-decoration: none;
 }

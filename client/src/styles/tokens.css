@@ -1,5 +1,8 @@
+/* Colours follow the phone (light or dark) unless the user picks one with the in-app switch,
+   which sets data-theme="light" | "dark" on <html> (see lib/theme.js). The barcode panel is
+   always black on white whatever the theme. */
 :root {
-  color-scheme: only light;
+  color-scheme: light dark;
 
   --c-aubergine: #43144f;
   --c-mango: #ffc02e;
@@ -10,6 +13,12 @@
   --c-text: var(--c-aubergine);
   --c-text-muted: #6b4a75;
 
+  --c-primary-bg: var(--c-aubergine);
+  --c-primary-fg: var(--c-cream);
+  --c-primary-hover: #2e0d37;
+  --c-error: #b3261e;
+  --c-control: var(--c-aubergine);
+
   --motion-card: 340ms;
   --ease-card: cubic-bezier(0.2, 0.8, 0.2, 1);
 
@@ -17,3 +26,33 @@
   --font-body: 'Nunito', system-ui, sans-serif;
 }
 
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --c-bg: #1a1320;
+  --c-surface: #261c2e;
+  --c-text: var(--c-cream);
+  --c-text-muted: #c9b8d0;
+  --c-primary-bg: var(--c-mango);
+  --c-primary-fg: var(--c-aubergine);
+  --c-primary-hover: #ffd166;
+  --c-error: #ffb4ab;
+  --c-control: var(--c-mango);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --c-bg: #1a1320;
+    --c-surface: #261c2e;
+    --c-text: var(--c-cream);
+    --c-text-muted: #c9b8d0;
+    --c-primary-bg: var(--c-mango);
+    --c-primary-fg: var(--c-aubergine);
+    --c-primary-hover: #ffd166;
+    --c-error: #ffb4ab;
+    --c-control: var(--c-mango);
+  }
+}

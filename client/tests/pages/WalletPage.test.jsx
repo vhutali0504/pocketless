@@ -116,6 +116,7 @@ describe('WalletPage', () => {
     renderWallet();
     const pnp = await screen.findByRole('button', { name: 'Pick n Pay, Smart Shopper' });
 
+    await user.tab(); // the light/dark switch in the header
     await user.tab(); // the "+" link in the header
     await user.tab();
     expect(pnp).toHaveFocus();

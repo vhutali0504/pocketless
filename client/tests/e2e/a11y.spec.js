@@ -84,10 +84,24 @@ for (const colorScheme of ['light', 'dark']) {
   });
 }
 
-test('stays in light colours when the phone is in dark mode', async ({ page }) => {
+test('a dark phone can switch the app to light, and the choice sticks', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
-  await page.goto('/app');
-  await expect(page.getByRole('link', { name: 'Add your first card' })).toBeVisible();
-  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(bg).toBe('rgb(255, 246, 230)'); // Cream #FFF6E6
+  await addCardViaUi(page, 'Clicks', VALUES[0]);
+  const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  // Put the card back first so the header switch is reachable.
+  await page.keyboard.press('Escape');
+  expect(await bg()).toBe('rgb(26, 19, 32)'); // follows the phone: dark
+
+  await page.getByRole('button', { name: 'Switch to light mode' }).click();
+  expect(await bg()).toBe('rgb(255, 246, 230)'); // Cream
+
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Switch to dark mode' })).toBeVisible();
+  expect(await bg()).toBe('rgb(255, 246, 230)');
+
+  // The barcode panel is white in either theme.
+  await page.getByRole('button', { name: /^Clicks/ }).click();
+  const panel = page.locator('.barcode-view').first();
+  await expect(panel).toBeVisible();
+  expect(await panel.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(255, 255, 255)');
 });
