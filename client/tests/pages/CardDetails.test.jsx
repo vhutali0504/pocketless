@@ -115,6 +115,20 @@ describe('Card details', () => {
     expect(saved.format).toBe('EAN_13');
   });
 
+  it('keeps a CODE_128 card as CODE_128 when the new number happens to pass an EAN check', async () => {
+    const { card, user } = await openDetails({ ...OTHER, value: 'SPAR-001', format: 'CODE_128' });
+    await user.click(screen.getByRole('button', { name: 'Change number' }));
+    const input = screen.getByLabelText('Card number');
+    await user.clear(input);
+    await user.type(input, '9780306406157'); // a valid EAN-13 check digit
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(await screen.findByRole('button', { name: 'Yes, save card' }));
+    expect(await screen.findByRole('status')).toHaveTextContent('Saved');
+    const saved = await store.get(card.id);
+    expect(saved.value).toBe('9780306406157');
+    expect(saved.format).toBe('CODE_128');
+  });
+
   it('cancelling a number change leaves the card alone', async () => {
     const { card, user } = await openDetails();
     await user.click(screen.getByRole('button', { name: 'Change number' }));

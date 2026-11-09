@@ -48,13 +48,16 @@ export function readTypedValue(raw, expected) {
 
 /**
  * Type the card number instead of scanning it.
+ * `expectedFormats` overrides the store's own list (the first entry is preferred when it fits).
  * @param {{ store: import('../../../lib/stores.js').Store, initialValue?: string,
+ *   expectedFormats?: BarcodeFormat[]|null,
  *   onSubmit(read: { value: string, format: BarcodeFormat }): void, onCancel(): void,
  *   cancelLabel?: string, onChange?(raw: string): void }} props
  */
 export default function ManualEntry({
-  store, initialValue = '', onSubmit, onCancel, cancelLabel = 'Cancel', onChange,
+  store, initialValue = '', expectedFormats, onSubmit, onCancel, cancelLabel = 'Cancel', onChange,
 }) {
+  const expected = expectedFormats ?? store.expectedFormats;
   const [raw, setRaw] = useState(initialValue);
   const [error, setError] = useState('');
   const [pending, setPending] = useState(/** @type {{value: string, format: BarcodeFormat}|null} */ (null));
@@ -64,7 +67,7 @@ export default function ManualEntry({
 
   const submit = (event) => {
     event.preventDefault();
-    const read = readTypedValue(raw, store.expectedFormats);
+    const read = readTypedValue(raw, expected);
     if (!read.ok) {
       setError(ERROR_COPY[read.reason] ?? ERROR_COPY.bad_chars);
       return;
@@ -78,8 +81,8 @@ export default function ManualEntry({
     onSubmit(picked);
   };
 
-  const numericOnly = Array.isArray(store.expectedFormats)
-    && store.expectedFormats.every((f) => ['EAN_13', 'EAN_8', 'UPC_A', 'ITF'].includes(f));
+  const numericOnly = Array.isArray(expected)
+    && expected.every((f) => ['EAN_13', 'EAN_8', 'UPC_A', 'ITF'].includes(f));
 
   return (
     <form className="add-body add-form" onSubmit={submit} noValidate>

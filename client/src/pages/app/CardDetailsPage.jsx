@@ -67,6 +67,9 @@ function Details({ card }) {
   if (leaving) return null;
 
   if (view === 'number') {
+    // The card's own format first, so a new number that also happens to pass another format's
+    // check (say, CODE_128 digits with a valid EAN check digit) keeps the card's symbology.
+    const expectedFormats = [...new Set([card.format, ...(store?.expectedFormats ?? [])])];
     return (
       <div className="add-page">
         <header className="add-header">
@@ -74,6 +77,7 @@ function Details({ card }) {
         </header>
         <ManualEntry
           store={store}
+          expectedFormats={expectedFormats}
           initialValue={card.value}
           onSubmit={(read) => {
             setDraftRead(read);
