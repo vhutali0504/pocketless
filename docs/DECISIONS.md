@@ -23,3 +23,4 @@ Every significant decision and why.
 - Fonts (Baloo 2 and Nunito) are self-hosted through Fontsource, so no visitor data goes to a font CDN.
 - Woolworths is deferred until its barcode format has been tested on a real card.
 - react-router-dom pinned to 6.30.x (not 6.28 as planned) to pick up security fixes for redirect advisories.
+- Accepted risk: two moderate react-router 6.x advisories remain (GHSA-wrjc-x8rr-h8h6, SSR-only; GHSA-337j-9hxr-rhxg, backslash open-redirect only when navigating to user-supplied URLs). The app has no SSR and never navigates to user input; revisit before any such feature or upgrade to v7.
