@@ -86,16 +86,6 @@
   font-weight: 700;
 }
 
-@media (prefers-color-scheme: dark) {
-  .add-error {
-    color: #ffb4ab;
-  }
-
-  .add-field__input[aria-invalid='true'] {
-    border-color: #ffb4ab;
-  }
-}
-
 .add-form__submit {
   margin-top: 8px;
 }

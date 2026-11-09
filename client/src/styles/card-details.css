@@ -63,8 +63,3 @@
   margin-top: 8px;
 }
 
-@media (prefers-color-scheme: dark) {
-  .details__pin input {
-    accent-color: var(--c-mango);
-  }
-}

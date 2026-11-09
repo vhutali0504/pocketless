@@ -83,3 +83,11 @@ for (const colorScheme of ['light', 'dark']) {
     });
   });
 }
+
+test('stays in light colours when the phone is in dark mode', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/app');
+  await expect(page.getByRole('link', { name: 'Add your first card' })).toBeVisible();
+  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  expect(bg).toBe('rgb(255, 246, 230)'); // Cream #FFF6E6
+});

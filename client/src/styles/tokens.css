@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light dark;
+  color-scheme: only light;
 
   --c-aubergine: #43144f;
   --c-mango: #ffc02e;
@@ -17,11 +17,3 @@
   --font-body: 'Nunito', system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --c-bg: #1a1320;
-    --c-surface: #261c2e;
-    --c-text: var(--c-cream);
-    --c-text-muted: #c9b8d0;
-  }
-}

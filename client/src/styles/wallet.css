@@ -101,13 +101,6 @@ html.is-card-out body {
   outline-offset: 3px;
 }
 
-@media (prefers-color-scheme: dark) {
-  .wallet-empty__cta {
-    background: var(--c-mango);
-    color: var(--c-aubergine);
-  }
-}
-
 /* Stack */
 
 .wallet-stack {

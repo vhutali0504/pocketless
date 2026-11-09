@@ -53,17 +53,6 @@
   background: var(--c-surface);
 }
 
-@media (prefers-color-scheme: dark) {
-  .btn--primary {
-    background: var(--c-mango);
-    color: var(--c-aubergine);
-  }
-
-  .btn--primary:hover:not(:disabled) {
-    background: #ffd166;
-  }
-}
-
 /* Confirm dialog */
 
 .dialog-backdrop {

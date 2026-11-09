@@ -38,3 +38,4 @@ Every significant decision and why.
 - The scanner falls back to ZXing when BarcodeDetector is present but broken (its `getSupportedFormats()` or constructor throws), and switches to ZXing for the rest of the session after 10 `detect()` failures in a row.
 - "Change number" on card details prefers the card's current format, so a CODE_128 card whose new digits happen to pass an EAN check digit stays CODE_128.
 - Only the Latin subsets of Nunito and Baloo 2 are bundled and precached (the `latin-*.css` Fontsource entries). Characters outside Latin fall back to the system font.
+- Light colours only (owner's request, 2026-11-09): the app ignores the phone's dark mode. `color-scheme: only light` also opts out of Chrome's automatic dark theme, so the barcode screen always looks the same and stays easy to scan.
